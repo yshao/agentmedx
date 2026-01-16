@@ -1,0 +1,46 @@
+[
+  {
+    "id": "diabetes_001",
+    "instruction": "A 65-year-old male with Type 2 diabetes presents for follow-up. Current A1C is 8.5%. He has hypertension and stage 3 CKD (eGFR 45 mL/min/1.73m2). Current medications: metformin 1000mg BID. BP: 145/90 mmHg. Provide a comprehensive treatment plan.",
+    "context": null,
+    "sol": [
+      "Consider adding SGLT2 inhibitor or GLP-1 RA for A1C reduction and cardio-renal benefits",
+      "Add ACE inhibitor or ARB for BP control and kidney protection",
+      "Target A1C < 7.0-7.5% based on age and comorbidities",
+      "Lifestyle modifications: diet, exercise, weight management",
+      "Monitor kidney function and adjust medications as needed"
+    ],
+    "eval_MRN": null,
+    "specialty": "diabetes"
+  },
+  {
+    "id": "cardiology_001",
+    "instruction": "A 58-year-old male presents with chest pain. ECG shows ST elevation in leads V1-V4. Cardiac enzymes are elevated. BP 100/60, HR 95. Describe immediate management and treatment plan.",
+    "context": null,
+    "sol": [
+      "Immediate activation of cath lab for PCI",
+      "Dual antiplatelet therapy: aspirin + P2Y12 inhibitor",
+      "Anticoagulation with heparin",
+      "High-intensity statin therapy",
+      "Nitroglycerin for pain relief",
+      "Beta-blocker if hemodynamically stable"
+    ],
+    "eval_MRN": null,
+    "specialty": "cardiology"
+  },
+  {
+    "id": "internal_medicine_001",
+    "instruction": "A 72-year-old female presents with confusion, fever, and dysuria. Urinalysis shows pyuria and bacteriuria. BP 85/55, HR 120, Temp 102°F. Provide diagnosis and management plan.",
+    "context": null,
+    "sol": [
+      "Diagnosis: urosepsis with septic shock",
+      "Immediate fluid resuscitation with crystalloids",
+      "Blood cultures, then broad-spectrum antibiotics (ceftriaxone or meropenem)",
+      "Vasopressors if needed (norepinephrine)",
+      "Remove indwelling catheter if present",
+      "Monitor lactate and urine output"
+    ],
+    "eval_MRN": null,
+    "specialty": "internal_medicine"
+  }
+]

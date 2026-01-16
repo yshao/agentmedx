@@ -1,0 +1,16 @@
+# HealthAgent Scenario Configuration
+# For host machine execution (running benchmark from host, not Docker)
+
+[green_agent]
+endpoint = "http://localhost:9008"
+cmd = "python -m medbench.medbench_judge --host 0.0.0.0 --port 9008 --data-path /app/data/medagentbench/test_data_v2.json"
+
+[[participants]]
+role = "medical_agent"
+endpoint = "http://localhost:9010"
+cmd = "python -m medbench.medical_agent --host 0.0.0.0 --port 9010 --specialty internal_medicine"
+
+[config]
+task_id = "internal_medicine_001"
+medical_category = "internal_medicine"
+dry_run = false

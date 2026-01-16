@@ -1,0 +1,14 @@
+# MedAgentBench Docker Scenario Configuration
+# Docker version of local_scenario.toml - agents managed by docker-compose
+
+[green_agent]
+endpoint = "http://green-agent:9008"
+
+[[participants]]
+role = "medical_agent"
+endpoint = "http://purple-agent:9010"
+
+[config]
+task_id = "diabetes_001"
+medical_category = "diabetes"
+dry_run = false

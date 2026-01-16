@@ -1,0 +1,18 @@
+# Clinical Reasoning Benchmark Scenario Configuration
+# Tests multi-step clinical decision making
+
+[green_agent]
+endpoint = "http://127.0.0.1:9008"
+cmd = "python -m medbench.medbench_judge --host 127.0.0.1 --port 9008 --data-path data/clinical_bench.json"
+
+[[participants]]
+role = "medical_agent"
+endpoint = "http://127.0.0.1:9010"
+cmd = "python -m medbench.medical_agent --host 127.0.0.1 --port 9010 --specialty diabetes"
+
+[config]
+task_id = "cr_diabetes_001"
+medical_category = "diabetes"
+dry_run = false
+benchmark_mode = "clinical"
+timeout_seconds = 120

@@ -1,0 +1,18 @@
+# Q&A Benchmark Scenario Configuration
+# Tests basic medical knowledge without external data
+
+[green_agent]
+endpoint = "http://127.0.0.1:9008"
+cmd = "python -m medbench.medbench_judge --host 127.0.0.1 --port 9008 --data-path data/qa_bench.json"
+
+[[participants]]
+role = "medical_agent"
+endpoint = "http://127.0.0.1:9010"
+cmd = "python -m medbench.medical_agent --host 127.0.0.1 --port 9010 --specialty general"
+
+[config]
+task_id = "internal_medicine_001"
+medical_category = "internal_medicine"
+dry_run = false
+benchmark_mode = "qa"
+timeout_seconds = 60

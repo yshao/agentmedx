@@ -1,0 +1,30 @@
+{
+  "8ffafab1306a756f99ad4f6fbeafb9dc": {
+    "task_id": "diabetes_001",
+    "response_hash": "8ffafab1306a756f99ad4f6fbeafb9dc",
+    "result": {
+      "medication_appropriateness": 10.0,
+      "a1c_target": 10.0,
+      "comorbidity_management": 5.0,
+      "lifestyle_recommendations": 5.0,
+      "safety": 5.0,
+      "monitoring_plan": 5.0,
+      "feedback": "Could not extract feedback from LLM response"
+    },
+    "timestamp": 1766626793.081426
+  },
+  "f2f0cb437e94c7c60c652da43e314e81": {
+    "task_id": "diabetes_001",
+    "response_hash": "f2f0cb437e94c7c60c652da43e314e81",
+    "result": {
+      "medication_appropriateness": 10.0,
+      "a1c_target": 9.5,
+      "comorbidity_management": 5.0,
+      "lifestyle_recommendations": 5.0,
+      "safety": 5.0,
+      "monitoring_plan": 5.0,
+      "feedback": "Could not extract feedback from LLM response"
+    },
+    "timestamp": 1766677506.8948476
+  }
+}

@@ -1,0 +1,85 @@
+[
+  {
+    "id": "diabetes_001",
+    "instruction": "A 65-year-old male with Type 2 diabetes presents for follow-up. Current A1C is 8.5%. He has hypertension and stage 3 CKD (eGFR 45 mL/min/1.73m2). Current medications: metformin 1000mg BID. BP: 145/90 mmHg. Provide a comprehensive treatment plan.",
+    "eval_MRN": null,
+    "sol": [
+      "Consider adding SGLT2 inhibitor or GLP-1 RA for A1C reduction and cardio-renal benefits",
+      "Add ACE inhibitor or ARB for BP control and kidney protection",
+      "Target A1C < 7.0-7.5% based on age and comorbidities",
+      "Lifestyle modifications: diet, exercise, weight management",
+      "Monitor kidney function and adjust medications as needed"
+    ],
+    "context": null
+  },
+  {
+    "id": "diabetes_002",
+    "instruction": "A 45-year-old female with Type 1 diabetes for 20 years presents. She uses insulin glargine 20 units nightly and lispro 1:10 carb ratio. Her A1C is 7.8%. She reports frequent hypoglycemia, especially at night. She wants to pregnancy. Discuss management adjustments.",
+    "eval_MRN": null,
+    "sol": [
+      "Switch to CGM for better glucose monitoring",
+      "Consider insulin pump for tighter control",
+      "Adjust basal insulin to reduce nocturnal hypoglycemia",
+      "Pre-conception counseling: target A1C < 6.5%",
+      "Add folic acid supplementation",
+      "Refer to high-risk obstetrics and maternal-fetal medicine"
+    ],
+    "context": null
+  },
+  {
+    "id": "cardiology_001",
+    "instruction": "A 58-year-old male presents with chest pain. ECG shows ST elevation in leads V1-V4. Cardiac enzymes are elevated. BP 100/60, HR 95. Describe immediate management and treatment plan.",
+    "eval_MRN": null,
+    "sol": [
+      "Immediate activation of cath lab for PCI",
+      "Dual antiplatelet therapy: aspirin + P2Y12 inhibitor",
+      "Anticoagulation with heparin",
+      "High-intensity statin therapy",
+      "Nitroglycerin for pain relief",
+      "Beta-blocker if hemodynamically stable"
+    ],
+    "context": null
+  },
+  {
+    "id": "internal_medicine_001",
+    "instruction": "A 72-year-old female presents with confusion, fever, and dysuria. Urinalysis shows pyuria and bacteriuria. BP 85/55, HR 120, Temp 102°F. Provide diagnosis and management plan.",
+    "eval_MRN": null,
+    "sol": [
+      "Diagnosis: urosepsis with septic shock",
+      "Immediate fluid resuscitation with crystalloids",
+      "Blood cultures, then broad-spectrum antibiotics (ceftriaxone or meropenem)",
+      "Urine culture and sensitivity",
+      "Monitor lactate, repeat vitals",
+      "Admit to ICU for sepsis management"
+    ],
+    "context": null
+  },
+  {
+    "id": "diabetes_003",
+    "instruction": "A 28-year-old male with Type 1 diabetes uses an insulin pump. His A1C is 9.2%. He reports frequent DKA episodes due to pump occlusion. He is interested in switching to multiple daily injections. Provide transition plan.",
+    "eval_MRN": null,
+    "sol": [
+      "Calculate total daily dose (TDD) from pump history",
+      "Start basal-bolus regimen: basal insulin (glargine/detemir) 50% of TDD",
+      "Mealtime insulin (rapid-acting) 50% divided among meals",
+      "Carbohydrate counting education",
+      "Sick day rules to prevent DKA",
+      "Close glucose monitoring during transition"
+    ],
+    "context": null
+  },
+  {
+    "id": "cardiology_002",
+    "instruction": "A 65-year-old female with atrial fibrillation, CHF (EF 35%), and hypertension presents. Current meds: metoprolol 25mg BID, lisinopril 10mg daily. She has had one TIA. Discuss anticoagulation and rhythm management.",
+    "eval_MRN": null,
+    "sol": [
+      "Start anticoagulation: DOAC (apixaban or rivaroxaban) preferred over warfarin",
+      "CHA2DS2-VASc score indicates high stroke risk",
+      "Continue rate control with beta-blocker",
+      "Consider rhythm control if symptomatic despite rate control",
+      "Evaluate for catheter ablation if appropriate",
+      "Continue ACE inhibitor for HF and BP"
+    ],
+    "context": null
+  }
+]

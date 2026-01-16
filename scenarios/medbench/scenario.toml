@@ -1,0 +1,21 @@
+# MedBench Scenario Configuration
+# Usage: ab load_scenario scenarios/medbench
+
+[scenario]
+name = "MedBench Healthcare Evaluation"
+description = "Evaluate medical AI agents on MedBench clinical tasks"
+version = "1.0.0"
+
+[green_agent]
+endpoint = "http://127.0.0.1:9008"
+cmd = "python -m scenarios.medbench.medbench_judge_a2a --host 127.0.0.1 --port 9008 --data-path data/medagentbench/test_data_v2.json"
+
+[[participants]]
+role = "medical_agent"
+endpoint = "http://127.0.1:9010"
+cmd = "python scenarios/medbench/medical_agent.py --host 127.0.0.1 --port 9010 --specialty diabetes"
+
+[config]
+task_id = "diabetes_001"
+medical_category = "diabetes"
+dry_run = false

@@ -1,0 +1,90 @@
+[
+  {
+    "id": "cr_diabetes_001",
+    "instruction": "A 65-year-old male with Type 2 diabetes (A1C 8.5%), hypertension (145/90 mmHg), and Stage 3 CKD (eGFR 45 mL/min/1.73m²) presents for follow-up. Current medications: metformin 1000mg BID. Develop a comprehensive treatment plan addressing all three conditions.",
+    "sol": [
+      "Add SGLT2 inhibitor (empagliflozin/dapagliflozin) for renal and CV protection",
+      "Add ACE inhibitor or ARB for BP control and kidney protection",
+      "Target A1C 7.0-7.5% (individualized based on comorbidities)",
+      "Monitor eGFR, potassium, and BNP regularly",
+      "Lifestyle modifications: DASH diet, exercise, weight management",
+      "Consider statin therapy for CV risk reduction"
+    ],
+    "specialty": "diabetes",
+    "rubric": "diabetes",
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "cr_cardio_001",
+    "instruction": "A 58-year-old male presents with retrosternal chest pain radiating to left arm and jaw. Pain started 2 hours ago. ECG shows ST depression in leads V5-V6. Cardiac enzymes are elevated. BP 110/70, HR 88. Describe the immediate management and differential diagnosis.",
+    "sol": [
+      "Diagnosis: NSTEMI (Non-ST-elevation myocardial infarction)",
+      "Immediate: Dual antiplatelet therapy (aspirin + ticagrelor/clopidogrel)",
+      "Anticoagulation: Heparin or enoxaparin",
+      "High-intensity statin: Atorvastatin 80mg",
+      "Risk stratification: TIMI or GRACE score",
+      "Early invasive strategy: Cardiac catheterization within 24-48 hours",
+      "Nitroglycerin for symptom relief",
+      "Beta-blocker if hemodynamically stable",
+      "Monitor for arrhythmias and heart failure"
+    ],
+    "specialty": "cardiology",
+    "rubric": "general_medical",
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "cr_infectious_001",
+    "instruction": "A 72-year-old female presents with altered mental status, fever (102°F), tachycardia (HR 120), and hypotension (BP 85/55). Urinalysis shows pyuria and bacteriuria. Patient has a indwelling Foley catheter. Provide immediate management plan.",
+    "sol": [
+      "Diagnosis: Urosepsis with septic shock (catheter-associated UTI)",
+      "Immediate: Remove and replace Foley catheter",
+      "Blood cultures x2 sets BEFORE antibiotics",
+      "Broad-spectrum antibiotics: Ceftriaxone 2g IV OR meropenem if multidrug-resistant risk",
+      "Fluid resuscitation: 30ml/kg crystalloid bolus",
+      " vasopressors if BP remains low after fluids (norepinephrine)",
+      "Repeat lactate in 4-6 hours to guide resuscitation",
+      "Source control: Ensure catheter replacement",
+      "Monitor: qSOFA score, urine output, mental status",
+      "Investigate: Blood cultures, urine culture, CXR to rule out other sources"
+    ],
+    "specialty": "infectious_disease",
+    "rubric": "general_medical",
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "cr_oncology_001",
+    "instruction": "A 55-year-old female with Stage III colorectal cancer post-surgery (status post colectomy). ECOG performance status 1. Discuss adjuvant chemotherapy regimen and monitoring plan.",
+    "sol": [
+      "Regimen: FOLFOX (5-FU, leucovorin, oxaliplatin) or CAPOX (capecitabine, oxaliplatin)",
+      "Duration: 3-6 months based on risk factors",
+      "Pre-treatment: Genetic testing for MSI-H/dMMR status",
+      "Dose adjustments: Based on renal function, neuropathy grading",
+      "Monitoring: CBC before each cycle, neuropathy assessment",
+      "Supportive care: Antiemetics, growth factor support if needed",
+      "Surveillance: CEA levels every 3-6 months for 2 years",
+      "Imaging: CT chest/abdomen/pelvis every 6-12 months",
+      "Lifestyle: Exercise, nutrition, smoking cessation"
+    ],
+    "specialty": "oncology",
+    "rubric": "general_medical",
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "cr_emergency_001",
+    "instruction": "A 22-year-old male brought in after motorcycle crash. GCS 6 (E1, V1, M4). BP 140/90, HR 110. There's a scalp laceration and deformity of right thigh. Provide immediate trauma assessment and management plan.",
+    "sol": [
+      "Primary Survey (ABCDE): Airway protection (GCS 6, intubate), Breathing (check for tension pneumothorax), Circulation (stop bleeding), Disability (GCS), Exposure (log roll)",
+      "Secondary Survey with full body exam",
+      "Immediate: 2 large-bore IVs, type and cross",
+      "Imaging: FAST scan, pan-scan CT, CXR, pelvis/hip X-ray",
+      "Treat: Scalp laceration wound care, splint right femur",
+      "Monitor: Repeat GCS, vitals, urine output",
+      "Consult: Trauma surgery, orthopedics, neurosurgery",
+      "Medications: Tetanus prophylaxis, analgesia, consider TXA if within 3 hours",
+      "Admit: ICU for monitoring"
+    ],
+    "specialty": "emergency_medicine",
+    "rubric": "general_medical",
+    "difficulty": "intermediate"
+  }
+]

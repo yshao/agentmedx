@@ -1,0 +1,49 @@
+# Standalone Benchmark Runner - Uses local_scenario.toml
+# The benchmark script manages starting/stopping agents as subprocesses
+FROM python:3.10-slim
+
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
+    curl \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install uv for Google private packages
+RUN pip install --no-cache-dir uv
+
+# Set working directory
+WORKDIR /app
+
+# Copy requirements first for filtering
+COPY requirements.txt .
+
+# Filter out a2a-sdk and google-adk from requirements.txt (installed via uv)
+RUN grep -vE '^(a2a-sdk|google-adk)' requirements.txt > /tmp/requirements.txt && \
+    pip install --no-cache-dir -r /tmp/requirements.txt && \
+    uv pip install --system --no-cache a2a-sdk google-adk && \
+    rm /tmp/requirements.txt
+
+# Copy application code
+COPY medbench/ ./medbench/
+COPY tutorial/ ./tutorial/
+COPY config/ ./config/
+COPY data/ ./data/
+COPY run_benchmark.py .
+
+# Set Python path
+ENV PYTHONPATH=/app:/app/tutorial/src
+
+# Expose ports (agents will bind to these)
+EXPOSE 9008 9010
+
+# Default environment variables
+ENV CONFIG_PATH=/app/config/local_scenario.toml
+ENV OFFICIAL_FORMAT=true
+ENV OUTPUT_DIR=/app/outputs
+ENV MODEL_NAME=agentx-medical
+
+# Create output directory
+RUN mkdir -p /app/outputs
+
+# Run the benchmark with local_scenario.toml
+# The benchmark script will start agents as subprocesses using cmd fields
+CMD ["python", "run_benchmark.py", "--config", "config/local_scenario.toml"]

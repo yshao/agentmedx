@@ -1,0 +1,16 @@
+[
+  {
+    "task_id": "official_task_001",
+    "instruction": "A 65-year-old male with type 2 diabetes presents with HbA1c of 8.5%. Current medications include metformin 1000mg twice daily. He has no history of hypoglycemia. What would you recommend?",
+    "eval_MRN": "patient-001",
+    "solution": "Consider adding a second agent such as a SGLT2 inhibitor or GLP-1 receptor agonist to improve glycemic control. These agents have cardiovascular and renal benefits.",
+    "context": "Patient has had diabetes for 10 years. BMI is 32. Blood pressure is 130/80 on ACE inhibitor. eGFR is 75 mL/min/1.73m2."
+  },
+  {
+    "task_id": "official_task_002",
+    "instruction": "A 55-year-old female with hypertension presents with BP of 150/95 despite lisinopril 20mg daily. What would you recommend?",
+    "eval_MRN": "patient-002",
+    "solution": "Add a thiazide diuretic or calcium channel blocker. Consider home BP monitoring to rule out white coat effect.",
+    "context": "Patient has no other comorbidities. Labs show normal potassium and creatinine."
+  }
+]

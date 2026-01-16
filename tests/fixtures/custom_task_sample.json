@@ -1,0 +1,21 @@
+[
+  {
+    "id": "custom_task_001",
+    "instruction": "A 70-year-old male with type 2 diabetes and CKD stage 3 presents with HbA1c of 7.8%. Current medications include metformin 500mg twice daily. eGFR is 45 mL/min/1.73m2. What would you recommend?",
+    "eval_MRN": "patient-101",
+    "sol": [
+      "Consider adding a DPP-4 inhibitor or GLP-1 receptor agonist. Metformin can be continued at current dose given eGFR >30. Avoid SGLT2 inhibitors due to eGFR <60. Individualize HbA1c target to 8.0% given age and comorbidities.",
+      "Alternative: Add basal insulin if oral agents insufficient."
+    ],
+    "context": "Patient has history of cardiovascular disease. BMI is 28. Blood pressure is 125/75."
+  },
+  {
+    "id": "custom_task_002",
+    "instruction": "Evaluate this patient's chest pain: 45-year-old female presenting with substernal chest pain radiating to left arm. Pain started 2 hours ago, 7/10 intensity. Associated with diaphoresis and nausea.",
+    "eval_MRN": "patient-102",
+    "sol": [
+      "Immediate evaluation for acute coronary syndrome indicated. Obtain ECG, cardiac biomarkers (troponin), chest X-ray. Activate cath lab if STEMI. Consider ACS pathway if NSTEMI/unstable angina."
+    ],
+    "context": "Patient has family history of premature CAD. Risk factors: hypertension, hyperlipidemia, former smoker."
+  }
+]

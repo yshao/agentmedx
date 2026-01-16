@@ -1,0 +1,16 @@
+# MedAgentBench Local Scenario Configuration
+# For local development - agents run as subprocesses on host machine
+
+[green_agent]
+endpoint = "http://127.0.0.1:9008"
+cmd = "python -m medbench.medbench_judge --host 127.0.0.1 --port 9008 --data-path data/medagentbench/test_data_v2.json"
+
+[[participants]]
+role = "medical_agent"
+endpoint = "http://127.0.0.1:9010"
+cmd = "python -m medbench.medical_agent --host 127.0.0.1 --port 9010 --specialty diabetes"
+
+[config]
+task_id = "diabetes_001"
+medical_category = "diabetes"
+dry_run = false

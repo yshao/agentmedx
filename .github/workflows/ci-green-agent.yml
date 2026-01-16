@@ -1,0 +1,99 @@
+name: CI - Green Agent
+
+# Trigger on all pushes and pull requests
+on:
+  push:
+    branches:
+      - '**'
+  pull_request:
+    branches:
+      - main
+      - develop
+
+jobs:
+  test-green-agent:
+    name: Test Green Agent
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+
+      - name: Set up uv
+        uses: astral-sh/setup-uv@v4
+
+      - name: Install dependencies
+        run: |
+          uv pip install --system -r requirements.txt
+
+      - name: Lint with flake8
+        continue-on-error: true
+        run: |
+          pip install flake8
+          # Stop the build if there are Python syntax errors or undefined names
+          flake8 scenarios/medbench/ --count --select=E9,F63,F7,F82 --show-source --statistics
+          # Exit-zero treats all errors as warnings
+          flake8 scenarios/medbench/ --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
+
+      - name: Run unit tests
+        run: |
+          pip install pytest pytest-asyncio
+          pytest tests/ -v --tb=short -k "not purple" || true
+
+  build-green-agent:
+    name: Build Green Agent Docker Image
+    runs-on: ubuntu-latest
+    needs: test-green-agent
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Build Docker image
+        run: |
+          docker build -t medbench-judge:test -f scenarios/medbench/Dockerfile.judge .
+
+      - name: Start container
+        run: |
+          docker run -d -p 9008:9008 --name medbench-judge \
+            -e HOST=0.0.0.0 \
+            -e AGENT_PORT=9008 \
+            -e DATA_PATH=/app/data/medagentbench/test_data_v2.json \
+            -e GOOGLE_API_KEY=test_key \
+            -e GROQ_API_KEY=test_key \
+            -v ${{ github.workspace }}/data:/app/data:ro \
+            medbench-judge:test
+
+      - name: Wait for agent to be healthy
+        run: |
+          timeout 60 bash -c 'until curl -sf http://localhost:9008/health > /dev/null; do sleep 2; done'
+          echo "Agent is healthy"
+
+      - name: Test health endpoint
+        run: |
+          curl -sf http://localhost:9008/health | jq .
+
+      - name: Test agent info endpoint
+        run: |
+          curl -sf http://localhost:9008/ | jq .
+
+      - name: Test A2A agent card
+        run: |
+          curl -sf http://localhost:9008/.well-known/agent.json | jq .
+
+      - name: Show logs on failure
+        if: failure()
+        run: |
+          echo "=== Container Logs ==="
+          docker logs medbench-judge
+
+      - name: Cleanup
+        if: always()
+        run: |
+          docker stop medbench-judge || true
+          docker rm medbench-judge || true

@@ -1,0 +1,107 @@
+version: '3.8'
+
+networks:
+  medagent-network:
+    driver: bridge
+
+services:
+  # FHIR Server (optional - for EHR data queries)
+  fhir-server:
+    image: jyxsu6/medagentbench:latest
+    container_name: medagent-fhir
+    ports:
+      - "8080:8080"
+    networks:
+      - medagent-network
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8080/ && curl -s http://localhost:8080/ | grep -q HAPI"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    restart: unless-stopped
+    profiles:
+      - fhir  # Only include with: docker-compose --profile fhir up
+
+  # Green Agent (Judge)
+  green-agent:
+    build:
+      context: .
+      dockerfile: scenarios/medbench/Dockerfile.judge
+    container_name: medbench-judge
+    ports:
+      - "9008:9008"
+    environment:
+      - GOOGLE_API_KEY=${GOOGLE_API_KEY}
+      - GROQ_API_KEY=${GROQ_API_KEY}
+      - DATA_PATH=/app/data/medagentbench/test_data_v2.json
+      - EXPORT_OFFICIAL=${EXPORT_OFFICIAL:-true}
+      - OUTPUT_DIR=/app/outputs
+      - MODEL_NAME=${MODEL_NAME:-agentx-medical}
+    volumes:
+      - ./data:/app/data:ro
+      - ./outputs:/app/outputs
+      - ./tutorial:/app/tutorial:ro
+    networks:
+      - medagent-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9008/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    restart: unless-stopped
+
+  # Purple Agent (Medical Participant)
+  purple-agent:
+    build:
+      context: .
+      dockerfile: scenarios/medbench/Dockerfile.medical
+      args:
+        SPECIALTY: ${MEDICAL_SPECIALTY:-diabetes}
+    container_name: medbench-medical
+    ports:
+      - "9010:9010"
+    environment:
+      - GOOGLE_API_KEY=${GOOGLE_API_KEY}
+      - GROQ_API_KEY=${GROQ_API_KEY}
+      - SPECIALTY=${MEDICAL_SPECIALTY:-diabetes}
+    command: ["sh", "-c", "python -m scenarios.medbench.medical_agent --host 0.0.0.0 --port 9010 --specialty diabetes --card-url http://medbench-medical:9010/"]
+    networks:
+      - medagent-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9010/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    restart: unless-stopped
+
+  # Benchmark Runner (one-shot job)
+  benchmark:
+    build:
+      context: .
+      dockerfile: Dockerfile.benchmark
+    container_name: medbench-runner
+    environment:
+      - CONFIG_PATH=/app/config/scenario.toml
+      - OFFICIAL_FORMAT=${EXPORT_OFFICIAL:-true}
+      - OUTPUT_DIR=/app/outputs
+      - MODEL_NAME=${MODEL_NAME:-agentx-medical}
+      - GROQ_API_KEY=${GROQ_API_KEY}
+      - GOOGLE_API_KEY=${GOOGLE_API_KEY}
+    volumes:
+      - ./outputs:/app/outputs
+      - ./config:/app/config:ro
+      - ./tutorial:/app/tutorial:ro
+      - ./data:/app/data:ro
+    networks:
+      - medagent-network
+    depends_on:
+      green-agent:
+        condition: service_healthy
+      purple-agent:
+        condition: service_healthy
+    profiles:
+      - benchmark  # Only run with: docker-compose --profile benchmark up benchmark
+    command: ["python", "run_benchmark.py", "--config", "config/docker_local_scenario.toml"]
