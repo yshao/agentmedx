@@ -22,9 +22,6 @@ project2/
 │       ├── reference_solution.py    # Reference implementations
 │       ├── official_exporter.py     # Official format export
 │       └── medbench_common.py       # Common utilities
-├── tests/                         # A2A conformance tests
-│   ├── test_a2a_conformance.py
-│   └── test_purple_agent.py
 ├── data/medagentbench/            # MedAgentBench test data
 │   └── test_data_v2.json
 ├── Dockerfile                     # Docker configuration
@@ -99,205 +96,258 @@ This will use the scenario file `scenario.toml` and will save the results in `ou
 ### Using Docker Compose (Recommended)
 
 ```bash
-# Build and run with Docker Compose
-docker-compose --profile benchmark up --build
-
 # Or start agents only
-docker-compose up green-agent purple-agent
+docker compose up green-agent purple-agent
 ```
 
-### Building individual images
+## Follow the AgentBeats recommendations for the GHCR images
+
+## Automated CI/CD Pipeline
+
+### GitHub Actions Workflow: `.github/workflows/publish-green.yml`
+
+The automation pipeline triggers on multiple events and builds/pushes the Docker image without manual intervention.
+
+```yaml
+# Green Agent (MedBenchJudge) - Publish to GHCR
+name: Publish Green Agent
+
+on:
+  push:
+    branches:
+      - main                    # Auto-build on main branch changes
+    tags:
+      - 'green-v*'             # Build versioned releases
+  pull_request:               # Test builds in PRs
+  workflow_dispatch:           # Manual trigger option
+
+jobs:
+  build-and-push-green:
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+      packages: write          # Required for pushing to GHCR
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}  # Auto-provided by GitHub
+
+      - name: Extract metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ghcr.io/yshao/medbench-judge
+          tags: |
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}
+            type=raw,value=latest,enable={{is_default_branch}}
+            type=ref,event=pr
+
+      - name: Build and push
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./scenarios/medbench/Dockerfile.judge
+          push: ${{ github.event_name != 'pull_request' }}
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          platforms: linux/amd64
+          cache-from: type=gha      # Cache for faster builds
+          cache-to: type=gha,mode=max
+
+      - name: Image digest
+        run: |
+          echo "## Green Agent Published :rocket:" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo '```bash' >> $GITHUB_STEP_SUMMARY
+          echo "docker pull ghcr.io/yshao/medbench-judge:latest" >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+```
+
+### Automation Triggers Explained
+
+| Trigger Event | When It Runs | Image Pushed | Tags Created |
+|----------------|--------------|---------------|--------------|
+| **Push to main** | Every commit to main branch | ✅ Yes | `:latest` |
+| **Git tag `green-v*`** | When version tag pushed | ✅ Yes | `:1.0.0`, `:1`, `:latest` |
+| **Pull Request** | When PR created/updated | ❌ No | `:pr-123` |
+| **Manual dispatch** | Click "Run workflow" button | ✅ Yes | `:latest` |
+
+### Zero-Touch Deployment Flow
+
+```
+Developer Push Code
+        ↓
+GitHub Actions Detects Change
+        ↓
+Triggers "publish-green.yml" Workflow
+        ↓
+┌─────────────────────────────────────┐
+│ 1. Checkout Repository              │
+│ 2. Set up Docker Buildx              │
+│ 3. Log in to GHCR (auto-token)       │
+│ 4. Extract metadata (tags, labels)    │
+│ 5. Build Docker image                │
+│    ├─ Use cache for layers            │
+│    ├─ Run tests (if configured)       │
+│    └─ Scan for security issues       │
+│ 6. Push to GHCR                       │
+│ 7. Publish image digest              │
+└─────────────────────────────────────┘
+        ↓
+Image Available at: ghcr.io/yshao/medbench-judge:latest
+        ↓
+Leaderboard Evaluations Use New Image
+```
+
+---
+
+## End-to-End Build Process
+
+### Local Development Build
 
 ```bash
-# Build the image
-docker build --platform linux/arm64 -t medbench-green-agent .
+# Navigate to project root
+cd /path/to/project2
 
-# Run the container
-docker run --env-file .env -p 9008:9008 medbench-green-agent
+# Build the green agent image locally
+docker build -f scenarios/medbench/Dockerfile.judge -t medbench-judge:local .
+
+# Run with configuration
+docker run -p 9008:9008 \
+  -e GROQ_API_KEY="${GROQ_API_KEY}" \
+  -e DATA_PATH="/app/data/medagentbench/test_data_v2.json" \
+  medbench-judge:local
 ```
 
-## Testing
-
-Run A2A conformance tests against your agent.
+### Automated Production Build
 
 ```bash
-# Install test dependencies
-pip install -r requirements.txt
+# 1. Make code changes
+git checkout main
+vim scenarios/medbench/medbench_judge_a2a.py
 
-# Start your agent (uv or docker; see above)
+# 2. Commit and push (triggers automatic build)
+git add scenarios/medbench/medbench_judge_a2a.py
+git commit -m "feat: improve evaluation logic"
+git push origin main
 
-# Run tests against your running agent URL
-pytest tests/test_a2a_conformance.py --agent-url http://localhost:9008
+# 3. GitHub Actions automatically:
+#    - Builds Docker image
+#    - Runs tests
+#    - Pushes to ghcr.io/yshao/medbench-judge:latest
+#    - Creates version tags if git tag exists
 
-# Run all tests
-pytest tests/
+# 4. Image is now available for leaderboard evaluations
+docker pull ghcr.io/yshao/medbench-judge:latest
 ```
 
-## Medical Evaluation Details
-
-### Features
-
-- **300 Clinical Tasks**: Across 10 medical categories (diabetes, cardiology, internal medicine, etc.)
-- **Specialty-Specific Evaluation**:
-  - **Diabetes**: 6 criteria (medication appropriateness, A1C targets, comorbidity management, lifestyle, safety, monitoring)
-  - **General Medical**: 3 criteria (accuracy, completeness, medical correctness)
-- **LLM-as-Judge Evaluation**: Uses Gemini 2.5-flash with structured rubrics
-- **Rate Limiting**: Automatic retry logic with exponential backoff for API quotas
-- **A2A Protocol**: Standard Agent-to-Agent communication for agent interactions
-
-### Configuration
-
-Edit `scenario.toml` to customize:
-
-```toml
-[config]
-task_id = "diabetes_001"          # Which task to evaluate
-medical_category = "diabetes"     # Determines evaluation rubric
-```
-
-### Available Medical Categories
-
-| Category | Criteria | Max Score |
-|----------|----------|-----------|
-| `diabetes` | 6 specialty criteria | 60 |
-| `cardiology` | 3 general criteria | 30 |
-| `internal_medicine` | 3 general criteria | 30 |
-| `general_medical` | 3 general criteria | 30 |
-
-### Evaluation Criteria
-
-#### Diabetes (6 criteria, 0-10 each)
-
-1. **Medication Appropriateness**: Are medications suitable for this patient's profile?
-2. **A1C Target**: Does the plan address A1C goals appropriately?
-3. **Comorbidity Management**: Are comorbidities (hypertension, kidney, lipids) addressed?
-4. **Lifestyle Recommendations**: Are diet and exercise guidance included?
-5. **Safety**: Are there contraindications or dangerous drug interactions?
-6. **Monitoring Plan**: Is there a clear follow-up and monitoring strategy?
-
-#### General Medical (3 criteria, 0-10 each)
-
-1. **Accuracy**: How close is the response to the expected answer?
-2. **Completeness**: Does it address all aspects of the question?
-3. **Medical Correctness**: Is the information clinically sound?
-
-### Component Overview
-
-#### Green Agent (`medbench_judge_a2a.py`)
-- **Port**: 9008 (default)
-- **Purpose**: Orchestrates medical benchmark evaluation
-- **Responsibilities**:
-  - Loads MedAgentBench tasks from JSON
-  - Validates task_id and medical_category
-  - Sends tasks to medical agents via A2A
-  - Evaluates responses using specialty-specific rubrics
-  - Returns structured evaluation results
-
-#### Purple Agent (`medical_agent.py`)
-- **Port**: 9010 (default)
-- **Purpose**: Medical AI participant that receives clinical tasks
-- **Features**:
-  - Specialty-specific instructions (diabetes, cardiology, internal medicine, general)
-  - Uses Google ADK Agent framework
-  - Converts to A2A for agent communication
-
-#### Evaluation Engine (`medical_evaluation.py`)
-- **Model**: gemini-2.5-flash
-- **Purpose**: LLM-as-Judge with medical rubrics
-- **Features**:
-  - Specialty-specific prompts for accurate evaluation
-  - Rate limit handling with exponential backoff
-  - JSON parsing with regex fallback
-  - Extracts structured scores from responses
-
-### Rate Limiting
-
-The benchmark includes automatic retry logic for handling API rate limits:
-
-- **Exponential Backoff**: 2^attempt * 5 seconds (5s, 10s, 20s)
-- **Max Retries**: 3 attempts
-- **Applied to**: Both participant communication and LLM evaluation calls
-
-## Troubleshooting
-
-### "Module not found" errors
-
-**Problem**: Cannot import agentbeats framework
-
-**Solution**: Ensure PYTHONPATH includes both `tutorial/src/` and `project2/`:
+### Versioned Release Build
 
 ```bash
-export PYTHONPATH=/path/to/tutorial/src:/path/to/project2:$PYTHONPATH
+# Create and push version tag
+git tag -a green-v1.2.0 -m "Release version 1.2.0"
+git push origin green-v1.2.0
+
+# GitHub Actions automatically creates:
+# - ghcr.io/yshao/medbench-judge:1.2.0
+# - ghcr.io/yshao/medbench-judge:1
+# - ghcr.io/yshao/medbench-judge:latest
 ```
 
-### "No such file or directory: test_data_v2.json"
+---
 
-**Problem**: MedAgentBench data not found
+## Runtime Configuration
 
-**Solution**: Clone MedAgentBench and copy data:
+### Docker Compose Integration
+
+In leaderboard repositories, the green agent is orchestrated via `docker-compose.yml` generated from `scenario.toml`:
+
+```yaml
+services:
+  green-agent:
+    image: ghcr.io/yshao/medbench-judge:latest
+    platform: linux/amd64
+    container_name: green-agent
+    environment:
+      - GROQ_API_KEY=${GROQ_API_KEY}
+      - GOOGLE_API_KEY=${GOOGLE_API_KEY}
+      - DATA_PATH=/app/data/medagentbench/test_data_v2.json
+      - LOG_LEVEL=INFO
+      - CARD_URL=http://green-agent:9008/
+      - HOST=0.0.0.0
+      - AGENT_PORT=9008
+    ports:
+      - "9008:9008"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9008/health"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+      start_period: 60s
+```
+
+
+## Automated CI/CD Pipeline
+
+### GitHub Actions Workflow: `.github/workflows/publish-green.yml`
+
+The automation pipeline triggers on multiple events and builds/pushes the Docker image without manual intervention.
+
+
+### Automated Production Build
 
 ```bash
-git clone https://github.com/stanfordmlgroup/MedAgentBench.git
-cp MedAgentBench/data/medagentbench/test_data_v2.json data/medagentbench/
+# 1. Make code changes
+git checkout main
+vim scenarios/medbench/medbench_judge_a2a.py
+
+# 2. Commit and push (triggers automatic build)
+git add scenarios/medbench/medbench_judge_a2a.py
+git commit -m "feat: improve evaluation logic"
+git push origin main
+
+# 3. GitHub Actions automatically:
+#    - Builds Docker image
+#    - Runs tests
+#    - Pushes to ghcr.io/yshao/medbench-judge:latest
+#    - Creates version tags if git tag exists
+
+# 4. Image is now available for leaderboard evaluations
+docker pull ghcr.io/yshao/medbench-judge:latest
 ```
 
-### "Invalid task_id"
+## AgentBeats Evaluation
 
-**Problem**: The specified task_id doesn't exist in the loaded data
+### Environment Variables Reference
 
-**Solution**: Check available task IDs:
+#### Required for Evaluation
 
-```bash
-python -c "
-import json
-with open('data/medagentbench/test_data_v2.json') as f:
-    tasks = json.load(f)
-    if isinstance(tasks, dict):
-        tasks = tasks.get('tasks', [])
-    task_ids = [t.get('id') for t in tasks if isinstance(t, dict)]
-    print('Available task IDs:', task_ids[:20])  # Show first 20
-"
-```
+| Variable | Description | Example | Source |
+|----------|-------------|---------|--------|
+| `GROQ_API_KEY` | Groq API key for LLM evaluation | `gsk_...` | GitHub Secret |
+| `DATA_PATH` | Path to test dataset | `/app/data/medagentbench/test_data_v2.json` | Built into image |
 
-### 429 RESOURCE_EXHAUSTED errors
+#### Optional Configuration
 
-**Problem**: API quota exceeded
+| Variable | Description | Default | Impact |
+|----------|-------------|---------|--------|
+| `GOOGLE_API_KEY` | Google API for additional services | - | Enables extra features |
+| `LOG_LEVEL` | Logging verbosity | `INFO` | Debug output control |
+| `CARD_URL` | External agent card URL | Auto-generated | Enables external discovery |
+| `HOST` | Server binding address | `0.0.0.0` | Network accessibility |
+| `AGENT_PORT` | Server port | `9008` | Port conflicts |
+| `DRY_RUN` | Use mock scores | `false` | Testing vs production |
 
-**Solution**:
-- Use a Google API key with available quota
-- Consider switching to `gemini-1.5-flash` for higher free tier limits
-
-### Agent not becoming ready
-
-**Problem**: Agent doesn't respond to health checks
-
-**Solution**:
-1. Check if agent is actually running (`ps aux | grep <port>`)
-2. Check agent logs for startup errors
-3. Verify PYTHONPATH is set correctly
-4. Check if Google API key is loaded
-
-## Development
-
-### Adding New Medical Categories
-
-1. Add new category to `MedicalCategory` enum in `medbench_models.py`
-2. Add corresponding evaluation method in `medical_evaluation.py`
-3. Add specialty instructions to `medical_agent.py`
-4. Update `_valid_categories` list in `medbench_judge_a2a.py`
-
-### Testing
-
-To test with a specific task:
-
-1. Check available task IDs from `test_data_v2.json`
-2. Set `task_id` and `medical_category` in `scenario.toml`
-3. Run benchmark: `python run_benchmark.py --config scenario.toml`
-
-## License
-
-This implementation is built on:
-- AgentBeats framework: Apache-2.0 License
-- Google GenAI SDK: Apache 2.0 License
-- Google ADK: Apache 2.0 License
-- A2A SDK: Apache 2.0 License
+---
